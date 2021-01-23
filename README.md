@@ -1,5 +1,5 @@
 # Pomodoro
-A pomodoro implementation that still needs quite some work to be useful
+A quick and dirty pomodore implementation that still requires quite some work
 
 ToDo's:
  - enable configuration of the different times

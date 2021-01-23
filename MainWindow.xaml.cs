@@ -77,11 +77,11 @@ namespace Pomodoro
                             else
                                 ShowNotification("Break is over, lets study again", NotificationType.Information);
                         });
-                }
 
-                IsProgressComplete = true;
-                if (IsStudying)
-                    CyclesDone += 1;
+                    IsProgressComplete = true;
+                    if (IsStudying)
+                        CyclesDone += 1;
+                }
             }
 
             // notify UI that value has changed
@@ -157,7 +157,7 @@ namespace Pomodoro
             System.IO.Directory.CreateDirectory(path);
             path = System.IO.Path.Combine(path, logfile);
 
-            System.IO.File.AppendAllLines(path, new [] { log });
+            System.IO.File.AppendAllLines(path, new[] { log });
         }
 
         private void ShowNotification(string message, NotificationType type)
