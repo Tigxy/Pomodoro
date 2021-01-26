@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Timers;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Pomodoro
 {
@@ -19,6 +10,9 @@ namespace Pomodoro
     /// </summary>
     public partial class Notification : Window
     {
+        private const int _timeUntilClose = 5; // in seconds
+        Timer _timer;
+
         public Notification(string message, NotificationType notificationType)
         {
             InitializeComponent();
@@ -40,6 +34,16 @@ namespace Pomodoro
             this.Background = background;
 
             msg.Text = message;
+
+            // We want to close this notification pop up after a certain amount of time
+            _timer = new Timer(_timeUntilClose * 1000); // to ms
+            _timer.Start();
+            _timer.Elapsed += _timer_Elapsed;
+        }
+
+        private void _timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            this.Close();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

@@ -31,6 +31,8 @@ namespace Pomodoro
         public int DurationLongBreak = 20;
         public int CyclesUntilLongBreak = 4;
 
+        private Notification notifier;
+
         public string RemainingTime
         {
             get
@@ -69,6 +71,11 @@ namespace Pomodoro
             {
                 if (!IsProgressComplete)
                 {
+                    // Invoke might 
+                    IsProgressComplete = true;
+                    if (IsStudying)
+                        CyclesDone += 1;
+
                     App.Current.Dispatcher.Invoke(
                         () =>
                         {
@@ -77,10 +84,6 @@ namespace Pomodoro
                             else
                                 ShowNotification("Break is over, lets study again", NotificationType.Information);
                         });
-
-                    IsProgressComplete = true;
-                    if (IsStudying)
-                        CyclesDone += 1;
                 }
             }
 
@@ -133,7 +136,7 @@ namespace Pomodoro
             IsStudying ^= true;
 
             if (IsProgressComplete)
-                IsShortBreak = CyclesDone == CyclesUntilLongBreak;
+                IsShortBreak = CyclesDone != CyclesUntilLongBreak;
             else
             {
                 if (sender is Button btn)
@@ -151,7 +154,7 @@ namespace Pomodoro
 
         private void Log()
         {
-            var log = $"{System.DateTime.Now} - InProgress: {InProgress}, IsStudying: {IsStudying}";
+            var log = $"{System.DateTime.UtcNow} - InProgress: {InProgress}, IsStudying: {IsStudying}";
             var path = System.IO.Path.Combine(appdata_path, appname);
 
             System.IO.Directory.CreateDirectory(path);
@@ -162,8 +165,8 @@ namespace Pomodoro
 
         private void ShowNotification(string message, NotificationType type)
         {
-            var n = new Notification(message, type);
-            n.Show();
+            notifier = new Notification(message, type);
+            notifier.Show();
             this.BringIntoView();
             this.Activate();
             this.Topmost = true;
