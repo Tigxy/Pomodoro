@@ -1,4 +1,6 @@
-﻿using System;
+﻿
+
+using System;
 using System.ComponentModel;
 using System.Timers;
 using System.Windows;
@@ -9,175 +11,60 @@ namespace Pomodoro
     /// <summary>
     /// Interaktionslogik für MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window
     {
         const string logfile = "studylog.txt";
         const string appname = "pomodoro";
-        private string appdata_path = System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        private readonly string appdata_path = System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-        public string Topic => IsStudying ? "Studying" : "Taking a break";
-
-        public bool IsStudying { get; private set; } = true;
-        public bool IsShortBreak { get; private set; } = true;
-
-        public bool InProgress { get; set; } = false;
-        public bool IsTimerReset { get; set; }
-        public bool IsProgressComplete { get; set; }
-
-        public int CyclesDone = 0;
-
-        public int DurationStudying = 40;
-        public int DurationShortBreak = 5;
-        public int DurationLongBreak = 20;
-        public int CyclesUntilLongBreak = 4;
-
-        private Notification notifier;
-
-        public string RemainingTime
-        {
-            get
-            {
-                return ToTimeString(_remainingTime);
-            }
-        }
-        private TimeSpan _remainingTime;
-
-        private Timer _ticker;
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public virtual void UpdateView(string property = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
-        }
+        public readonly PDService PomodoroService;
 
         public MainWindow()
         {
             InitializeComponent();
-            _ticker = new Timer(interval: 1000); // tick every second
-            _ticker.Elapsed += OnTimerTick;
-            ResetTimer();
-
+            PomodoroService = new PDService();
+                        
             // We provide our own data
-            this.DataContext = this;
-        }
-
-        private void OnTimerTick(object sender, ElapsedEventArgs e)
-        {
-            IsTimerReset = false;
-            _remainingTime = _remainingTime.Subtract(new TimeSpan(hours: 0, minutes: 0, seconds: 1));
-
-            if (_remainingTime.TotalSeconds <= 0)
-            {
-                if (!IsProgressComplete)
-                {
-                    // Invoke might 
-                    IsProgressComplete = true;
-                    if (IsStudying)
-                        CyclesDone += 1;
-
-                    App.Current.Dispatcher.Invoke(
-                        () =>
-                        {
-                            if (IsStudying)
-                                ShowNotification("Good job studying - take a break now", NotificationType.Success);
-                            else
-                                ShowNotification("Break is over, lets study again", NotificationType.Information);
-                        });
-                }
-            }
-
-            // notify UI that value has changed
-            UpdateView();
+            this.DataContext = PomodoroService;
         }
 
         private void Btn_PlayPause(object sender, RoutedEventArgs e)
         {
-            InProgress ^= true;
-            IsTimerReset = false;
-            UpdateView(null);
-
-            if (!InProgress)
-                _ticker.Stop();
-            else
-                _ticker.Start();
-            Log();
-        }
-
-        private void ResetTimer()
-        {
-            int duration = IsStudying ? DurationStudying : IsShortBreak ? DurationShortBreak : DurationLongBreak;
-            if (!IsStudying && !IsShortBreak)
-                CyclesDone = 0; // reset
-
-            _remainingTime = new TimeSpan(hours: 0, minutes: duration, seconds: 0);
-            IsTimerReset = true;
-            IsProgressComplete = false;
-            UpdateView();
+            PomodoroService.ToggleStartPause();
         }
 
         private void Btn_Reset(object sender, RoutedEventArgs e)
         {
-            InProgress = false;
-            _ticker.Stop();
-            ResetTimer();
-            Log();
-        }
-
-        private string ToTimeString(TimeSpan timer)
-        {
-            if (timer != null)
-                return $"{(timer.TotalSeconds < 0 ? "-" : "")} {Math.Abs(timer.Minutes):D2}:{Math.Abs(timer.Seconds):D2}";
-            return "00:00";
+            PomodoroService.Reset();
         }
 
         private void Btn_ChangeProcess(object sender, RoutedEventArgs e)
         {
-            IsStudying ^= true;
-
-            if (IsProgressComplete)
-                IsShortBreak = CyclesDone != CyclesUntilLongBreak;
-            else
+            if (sender is Button btn)
             {
-                if (sender is Button btn)
-                {
-                    if ((string)btn.Tag == "short")
-                        IsShortBreak = true;
-                    else if ((string)btn.Tag == "long")
-                        IsShortBreak = false;
-                }
+                string tag = (string)btn.Tag;
+                var ptype =
+                    tag == "short" ? PDPeriodType.ShortBreak :
+                    tag == "long" ? PDPeriodType.LongBreak : 
+                    tag == "study" ? PDPeriodType.Studying : PomodoroService.GetNextPeriodType();
+                PomodoroService.ChangePeriod(ptype);
             }
-
-            Log();
-            ResetTimer();
         }
 
-        private void Log()
-        {
-            var log = $"{System.DateTime.UtcNow} - InProgress: {InProgress}, IsStudying: {IsStudying}";
-            var path = System.IO.Path.Combine(appdata_path, appname);
+        //private void Log()
+        //{
+        //    var log = $"{System.DateTime.UtcNow} - InProgress: {InProgress}, IsStudying: {IsStudying}";
+        //    var path = System.IO.Path.Combine(appdata_path, appname);
 
-            System.IO.Directory.CreateDirectory(path);
-            path = System.IO.Path.Combine(path, logfile);
+        //    System.IO.Directory.CreateDirectory(path);
+        //    path = System.IO.Path.Combine(path, logfile);
 
-            System.IO.File.AppendAllLines(path, new[] { log });
-        }
-
-        private void ShowNotification(string message, NotificationType type)
-        {
-            notifier = new Notification(message, type);
-            notifier.Show();
-            this.BringIntoView();
-            this.Activate();
-            this.Topmost = true;
-            this.Topmost = false;
-            this.Focus();
-        }
+        //    System.IO.File.AppendAllLines(path, new[] { log });
+        //}
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            InProgress = false;
-            Log();
+            PomodoroService.Stop();
         }
     }
 }

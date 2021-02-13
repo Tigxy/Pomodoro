@@ -36,51 +36,51 @@
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="{Binding Topic, FallbackValue=Studying}" Margin="0 20" FontSize="50"/>
-        <TextBlock Grid.Row="1" Text="{Binding RemainingTime, FallbackValue=00:00}" HorizontalAlignment="Center" FontSize="40"/>
+        <TextBlock Grid.Row="0" Text="{Binding Status.CurrentPeriod, FallbackValue=Studying}" Margin="0 20" FontSize="50"/>
+        <TextBlock Grid.Row="1" Text="{Binding Status.STimeRemaining, FallbackValue=00:00}" HorizontalAlignment="Center" FontSize="40"/>
 
         <!-- UI while studying -->
         <StackPanel Grid.Row="2" Margin="0 10" Orientation="Horizontal" HorizontalAlignment="Center"
-                    Visibility="{Binding IsStudying, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}">
+                    Visibility="{Binding Status.IsStudying, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}">
             <Button Content="&#xE769;" Style="{StaticResource ButtonStyle}" Click="Btn_PlayPause" 
-                    Visibility="{Binding InProgress, FallbackValue=Collapsed, Converter={StaticResource VisibleHiddenConverter}}"/>
+                    Visibility="{Binding Status.IsPaused, FallbackValue=Collapsed, Converter={StaticResource HiddenVisibleConverter}}"/>
             <Button Content="&#xE768;" Style="{StaticResource ButtonStyle}" Click="Btn_PlayPause" 
-                    Visibility="{Binding InProgress, FallbackValue=Visible, Converter={StaticResource HiddenVisibleConverter}}"/>
+                    Visibility="{Binding Status.IsPaused, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}"/>
             <Button Content="&#xE72C;" Style="{StaticResource ButtonStyle}" Click="Btn_Reset" 
                     Visibility="{Binding IsTimerReset, FallbackValue=Visible, Converter={StaticResource HiddenVisibleConverter}}"/>
         </StackPanel>
         
         <!-- UI while taking a break -->
         <StackPanel Grid.Row="2" Margin="0 10" Orientation="Horizontal" HorizontalAlignment="Center"
-                    Visibility="{Binding IsStudying, FallbackValue=Hidden, Converter={StaticResource HiddenVisibleConverter}}">
+                    Visibility="{Binding Status.IsStudying, FallbackValue=Hidden, Converter={StaticResource HiddenVisibleConverter}}">
             <Button Content="&#xE769;" Style="{StaticResource ButtonStyle}" Click="Btn_PlayPause" 
-                    Visibility="{Binding InProgress, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}"/>
+                    Visibility="{Binding Status.IsPaused, FallbackValue=Visible, Converter={StaticResource HiddenVisibleConverter}}"/>
             <Button Content="&#xE768;" Style="{StaticResource ButtonStyle}" Click="Btn_PlayPause" 
-                    Visibility="{Binding InProgress, FallbackValue=Collapsed, Converter={StaticResource HiddenVisibleConverter}}"/>
+                    Visibility="{Binding Status.IsPaused, FallbackValue=Collapsed, Converter={StaticResource VisibleHiddenConverter}}"/>
         </StackPanel>
 
         <!-- Options while in progress -->
         <StackPanel Grid.Row="3"
-                    Visibility="{Binding IsProgressComplete, FallbackValue=Visible, Converter={StaticResource HiddenVisibleConverter}}">
+                    Visibility="{Binding Status.IsPeriodComplete, FallbackValue=Visible, Converter={StaticResource HiddenVisibleConverter}}">
             <Button Background="Transparent" Content="I need a short break" Margin="5" Padding="5" Tag="short"
-                Visibility="{Binding IsStudying, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}"
+                Visibility="{Binding Status.IsStudying, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}"
                 Click="Btn_ChangeProcess"/>
             <Button Background="Transparent" Content="I need a long break" Margin="5" Padding="5" Tag="long"
-                Visibility="{Binding IsStudying, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}"
+                Visibility="{Binding Status.IsStudying, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}"
                 Click="Btn_ChangeProcess"/>
-            <Button Background="Transparent" Content="Continue studying"
-                Visibility="{Binding IsStudying, FallbackValue=Hidden, Converter={StaticResource HiddenVisibleConverter}}"
+            <Button Background="Transparent" Content="Continue studying" Tag="study"
+                Visibility="{Binding Status.IsStudying, FallbackValue=Hidden, Converter={StaticResource HiddenVisibleConverter}}"
                 Click="Btn_ChangeProcess"/>
         </StackPanel>
         
         <!-- Options when done -->
         <StackPanel Grid.Row="3"
-                    Visibility="{Binding IsProgressComplete, FallbackValue=Collapsed, Converter={StaticResource VisibleHiddenConverter}}">
+                    Visibility="{Binding Status.IsPeriodComplete, FallbackValue=Collapsed, Converter={StaticResource VisibleHiddenConverter}}">
             <Button Background="Transparent" Content="Take a break" Margin="5" Padding="5" Tag="break"
-                Visibility="{Binding IsStudying, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}"
+                Visibility="{Binding Status.IsStudying, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}"
                 Click="Btn_ChangeProcess"/>
             <Button Background="Transparent" Content="Continue studying"
-                Visibility="{Binding IsStudying, FallbackValue=Hidden, Converter={StaticResource HiddenVisibleConverter}}"
+                Visibility="{Binding Status.IsStudying, FallbackValue=Hidden, Converter={StaticResource HiddenVisibleConverter}}"
                 Click="Btn_ChangeProcess"/>
         </StackPanel>
     </Grid>
