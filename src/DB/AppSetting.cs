@@ -9,26 +9,29 @@ namespace Pomodoro.DB
         public double WindowHeight;
         public double WindowWidth;
         public WindowState WindowState;
+        public string SelectedProfile;
 
         public static AppSetting LoadSetting()
         {
             return new AppSetting()
             {
-                WindowTop = DBAccess.LoadSetting<double>(nameof(WindowTop)),
-                WindowLeft = DBAccess.LoadSetting<double>(nameof(WindowLeft)),
-                WindowHeight = DBAccess.LoadSetting<double>(nameof(WindowHeight)),
-                WindowWidth = DBAccess.LoadSetting<double>(nameof(WindowWidth)),
-                WindowState = (WindowState)DBAccess.LoadSetting<int>(nameof(WindowState))
+                WindowTop = DBAccess.LoadParameter<double>(nameof(WindowTop)),
+                WindowLeft = DBAccess.LoadParameter<double>(nameof(WindowLeft)),
+                WindowHeight = DBAccess.LoadParameter<double>(nameof(WindowHeight)),
+                WindowWidth = DBAccess.LoadParameter<double>(nameof(WindowWidth)),
+                WindowState = (WindowState)DBAccess.LoadParameter<int>(nameof(WindowState)),
+                SelectedProfile = DBAccess.LoadParameter<string>(nameof(SelectedProfile))
             };
         }
 
         public void SaveSetting()
         {
-            DBAccess.SaveSetting(nameof(WindowTop), WindowTop);
-            DBAccess.SaveSetting(nameof(WindowLeft), WindowLeft);
-            DBAccess.SaveSetting(nameof(WindowHeight), WindowHeight);
-            DBAccess.SaveSetting(nameof(WindowWidth), WindowWidth);
-            DBAccess.SaveSetting(nameof(WindowState), (int)WindowState);
+            DBAccess.SaveParameter(nameof(WindowTop), WindowTop);
+            DBAccess.SaveParameter(nameof(WindowLeft), WindowLeft);
+            DBAccess.SaveParameter(nameof(WindowHeight), WindowHeight);
+            DBAccess.SaveParameter(nameof(WindowWidth), WindowWidth);
+            DBAccess.SaveParameter(nameof(WindowState), (int)WindowState);
+            DBAccess.SaveParameter(nameof(SelectedProfile), SelectedProfile);
         }
 
         public void TakeOver(Window window)

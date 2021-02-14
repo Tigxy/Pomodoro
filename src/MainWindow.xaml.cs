@@ -1,32 +1,73 @@
-﻿
-
-using Pomodoro.DB;
+﻿using Pomodoro.DB;
+using Pomodoro.View;
 using System;
 using System.ComponentModel;
-using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 
 namespace Pomodoro
 {
     /// <summary>
-    /// Interaktionslogik für MainWindow.xaml
+    /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        const string logfile = "studylog.txt";
-        const string appname = "pomodoro";
-        private readonly string appdata_path = System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        private bool _isSettingsVisible;
+        private UserControl _currentView;
 
-        public readonly PDService PomodoroService;
+        /// <summary>
+        /// Indicator whether settings are currently visible
+        /// </summary>
+        public bool IsSettingsVisible
+        {
+            get => _isSettingsVisible;
+            set { _isSettingsVisible = value; OnPropertyChanged(nameof(IsSettingsVisible)); }
+        }
+
+        /// <summary>
+        /// The view that is currently displayed
+        /// </summary>
+        public UserControl CurrentView
+        {
+            get => _currentView;
+            set { _currentView = value; OnPropertyChanged(nameof(CurrentView)); }
+        }
+
+        private SettingsView _settingsView;
+        /// <summary>
+        /// Lazy loaded settings view
+        /// </summary>
+        public SettingsView SettingsView
+        {
+            get
+            {
+                if (_settingsView == null)
+                {
+                    lock (this)
+                    {
+                        if (_settingsView == null)
+                            _settingsView = new SettingsView();
+                    }
+                }
+                return _settingsView;
+            }
+        }
+
+        public TimerView TimerView = new TimerView();
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+
 
         public MainWindow()
         {
             InitializeComponent();
-            PomodoroService = new PDService();
-                        
-            // We provide our own data
-            this.DataContext = PomodoroService;
+
+            // In case we ever want to offer more than one profile, most functionality is already prepared
+            PDService.Instance.ChangeProfile(DBAccess.GetProfile("default") ?? new Profile());
+            TimerView = new TimerView();
+            CurrentView = TimerView;
+            this.DataContext = this;
         }
 
         private void Window_Initialized(object sender, EventArgs e)
@@ -35,47 +76,29 @@ namespace Pomodoro
             a.Apply(this);
         }
 
-        private void Btn_PlayPause(object sender, RoutedEventArgs e)
-        {
-            PomodoroService.ToggleStartPause();
-        }
-
-        private void Btn_Reset(object sender, RoutedEventArgs e)
-        {
-            PomodoroService.Reset();
-        }
-
-        private void Btn_ChangeProcess(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn)
-            {
-                string tag = (string)btn.Tag;
-                var ptype =
-                    tag == "short" ? PDPeriodType.ShortBreak :
-                    tag == "long" ? PDPeriodType.LongBreak : 
-                    tag == "study" ? PDPeriodType.Studying : PomodoroService.GetNextPeriodType();
-                PomodoroService.ChangePeriod(ptype);
-            }
-        }
-
-        //private void Log()
-        //{
-        //    var log = $"{System.DateTime.UtcNow} - InProgress: {InProgress}, IsStudying: {IsStudying}";
-        //    var path = System.IO.Path.Combine(appdata_path, appname);
-
-        //    System.IO.Directory.CreateDirectory(path);
-        //    path = System.IO.Path.Combine(path, logfile);
-
-        //    System.IO.File.AppendAllLines(path, new[] { log });
-        //}
-
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            PomodoroService.Stop();
+            PDService.Instance.Stop();
 
             var appS = new AppSetting();
             appS.TakeOver(this);
             appS.SaveSetting();
+
+            DBAccess.SaveProfile(PDService.Instance.Profile);
+
+            // TODO: Remove once fixed in library
+            // Bug fix as the notification library currently does not close its own window
+            // but only hides it. As it is not running in a background thread, it will keep 
+            // running even after the main window was closed.
+            foreach (var wd in App.Current.Windows)
+                if (wd is Notification.Wpf.NotificationsOverlayWindow nwd)
+                    nwd.Close();
+        }
+
+        private void ToggleSettingsView(object sender, RoutedEventArgs e)
+        {
+            IsSettingsVisible ^= true;
+            CurrentView = IsSettingsVisible ? (UserControl)SettingsView : (UserControl)TimerView;
         }
     }
 }

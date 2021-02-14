@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace Pomodoro
+namespace Pomodoro.UI
 {
     public sealed class BooleanToVisibilityConverter : BooleanConverter<Visibility>
     {
