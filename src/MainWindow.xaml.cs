@@ -1,5 +1,6 @@
 ﻿
 
+using Pomodoro.DB;
 using System;
 using System.ComponentModel;
 using System.Timers;
@@ -26,6 +27,12 @@ namespace Pomodoro
                         
             // We provide our own data
             this.DataContext = PomodoroService;
+        }
+
+        private void Window_Initialized(object sender, EventArgs e)
+        {
+            var a = AppSetting.LoadSetting();
+            a.Apply(this);
         }
 
         private void Btn_PlayPause(object sender, RoutedEventArgs e)
@@ -65,6 +72,10 @@ namespace Pomodoro
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             PomodoroService.Stop();
+
+            var appS = new AppSetting();
+            appS.TakeOver(this);
+            appS.SaveSetting();
         }
     }
 }

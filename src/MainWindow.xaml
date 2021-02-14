@@ -5,10 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Pomodoro"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
+        Title="Pomodoro"
         FontSize="20"
         FontFamily="Calibri"
-        Closing="Window_Closing">
+        Closing="Window_Closing" Initialized="Window_Initialized"
+        Height="430" Width="300"
+        MinHeight="430" MinWidth="300"
+        >
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 

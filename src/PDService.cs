@@ -1,16 +1,36 @@
-﻿using System.ComponentModel;
+﻿#undef UseWinFormsNotifications
+
+using System;
+using System.ComponentModel;
 using System.Timers;
+using Timer = System.Timers.Timer;
+
+#if UseWinFormsNotifications
+using System.Windows.Forms;
+#else
+using Notification.Wpf;
+#endif
 
 namespace Pomodoro
 {
     public class PDService : INotifyPropertyChanged
     {
         private const int TickFrequency = 200;  // in ms, tick faster than what we display to increase responsiveness
+        private const int ToolTipTimeout = (int)1e4; // in ms
         private bool _isTimerReset = true;  // initially, timer starts out reset
 
         public PDStatus Status { get; private set; }
         public PDConfig Config { get; private set; }
         private readonly Timer _ticker = new Timer(interval: TickFrequency);
+
+        private DateTime _periodStartTime;
+        private void UpdatePeriodStartTime() => _periodStartTime = DateTime.UtcNow;
+
+#if UseWinFormsNotifications
+        readonly NotifyIcon _notifyIcon = new NotifyIcon();
+#else
+        readonly NotificationManager _notificationMngr = new NotificationManager(App.Current.Dispatcher);
+#endif
 
         public bool IsTimerReset
         {
@@ -43,7 +63,8 @@ namespace Pomodoro
             // Only act the first time period was determined complete
             if (Status.IsPeriodComplete &&! prevCompleteStatus)
             {
-                Status.CyclesDone++;
+                if (Status.IsStudying)
+                    Status.CyclesDone++;
                 if (Config.AutoSwitchModeAfterEnd)
                     ChangePeriod(GetNextPeriodType());
                 NotifyPeriodOver(Status.IsTakingBreak);
@@ -55,6 +76,7 @@ namespace Pomodoro
             _ticker.Start();
             Status.IsPaused = false;
             LogStatus();
+            UpdatePeriodStartTime();
         }
 
         public void Pause()
@@ -62,6 +84,7 @@ namespace Pomodoro
             _ticker.Stop();
             Status.IsPaused = true;
             LogStatus();
+            UpdatePeriodStartTime();
         }
 
         public void ToggleStartPause()
@@ -77,6 +100,7 @@ namespace Pomodoro
             _ticker.Stop();
             Status.IsPaused = true;
             Reset();
+            UpdatePeriodStartTime();
         }
 
         public void Reset()
@@ -84,6 +108,7 @@ namespace Pomodoro
             IsTimerReset = true;
             Status.TimeRemaining = Config.GetPeriodTimespan(Status.PeriodType);
             LogStatus();
+            UpdatePeriodStartTime();
         }
 
         public PDPeriodType GetNextPeriodType()
@@ -93,7 +118,7 @@ namespace Pomodoro
             
             // Note that internally we even count breaks as a cycle and as after each study 
             // period, it follows a break period, we get twice the amount of cycles.
-            if ((Status.CyclesDone + 1) % (Config.CyclesUntilLongBreak * 2) == 0)
+            if (Status.CyclesDone % Config.CyclesUntilLongBreak == 0)
                 return PDPeriodType.LongBreak;
 
             return PDPeriodType.ShortBreak;
@@ -104,19 +129,33 @@ namespace Pomodoro
             Status.PeriodType = periodType;
             Status.TimeRemaining = Config.GetPeriodTimespan(periodType);
             LogStatus();
+            UpdatePeriodStartTime();
         }
 
         public void NotifyPeriodOver(bool isBreakPeriod)
         {
             System.Diagnostics.Debug.WriteLine($"Period over! Is break period? {isBreakPeriod}");
-            //App.Current.Dispatcher.Invoke(
-            //() =>
-            //{
-            //    if (IsStudying)
-            //        ShowNotification("Good job studying - take a break now", NotificationType.Success);
-            //    else
-            //        ShowNotification("Break is over, lets study again", NotificationType.Information);
-            //});
+
+            // As the ticker is not using the UI thread but we would like to access some UI properties,
+            // we need to dispatch our actions to them
+            App.Current.Dispatcher.Invoke(() =>
+            {
+#if UseWinFormsNotifications
+                _notifyIcon.ShowBalloonTip(
+                    timeout: ToolTipTimeout, 
+                    tipTitle: App.Current.MainWindow.Title, 
+                    isBreakPeriod ? "Take a break!" : "Study!", 
+                    ToolTipIcon.Info
+                    );
+#else
+                _notificationMngr.Show(
+                    title: App.Current.MainWindow.Title,
+                    message: isBreakPeriod ? "Take a break!" : "Study!",
+                    type: Notification.Wpf.NotificationType.Information,
+                    expirationTime: TimeSpan.FromMilliseconds(ToolTipTimeout)
+                    );
+#endif
+            }, System.Windows.Threading.DispatcherPriority.Background);
         }
 
         /// <summary>
@@ -125,7 +164,19 @@ namespace Pomodoro
         public void LogStatus()
         {
             System.Diagnostics.Debug.WriteLine(Status);
-            // TODO: Implement logging
+
+            var timeDifference = _periodStartTime == default ? 0 : DateTime.UtcNow.Subtract(_periodStartTime).TotalSeconds;
+            
+            // Remove milliseconds as this is useless information for us
+            timeDifference = Math.Round(timeDifference);
+
+            DBAccess.SavePeriodEntry(new DB.PeriodEntry()
+            {
+                StartTime = _periodStartTime == default ? DateTime.UtcNow : _periodStartTime,
+                Duration = TimeSpan.FromSeconds(timeDifference),
+                IsStudying = Status.IsStudying,
+                IsPaused = Status.IsPaused
+            });
         }
     }
 }
