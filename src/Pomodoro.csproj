@@ -40,6 +40,9 @@
     <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Dapper.2.0.78\lib\net461\Dapper.dll</HintPath>
     </Reference>
+    <Reference Include="Dapper.FluentMap, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Dapper.FluentMap.2.0.0\lib\netstandard2.0\Dapper.FluentMap.dll</HintPath>
+    </Reference>
     <Reference Include="FontAwesome.WPF, Version=4.7.0.37774, Culture=neutral, PublicKeyToken=0758b07a11a4f466, processorArchitecture=MSIL">
       <HintPath>packages\FontAwesome.WPF.4.7.0.9\lib\net40\FontAwesome.WPF.dll</HintPath>
     </Reference>
@@ -77,6 +80,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DB\Handlers\DateTimeHandler.cs" />
+    <Compile Include="DB\Handlers\TimeSpanHandler.cs" />
+    <Compile Include="DB\PropertyTransformConvention.cs" />
     <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Models\RelayCommand.cs" />
     <Compile Include="Models\PageManager.cs" />

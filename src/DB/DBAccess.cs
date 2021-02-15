@@ -1,5 +1,7 @@
 ﻿using Dapper;
+using Dapper.FluentMap;
 using Pomodoro.DB;
+using Pomodoro.DB.Handlers;
 using Pomodoro.Models;
 using System;
 using System.CodeDom;
@@ -19,12 +21,37 @@ namespace Pomodoro
     /// </summary>
     public static class DBAccess
     {
+        static DBAccess()
+        {
+            ConfigureDapper();
+        }
+
         /// <summary>
         /// Loads the connections string to our database
         /// </summary>
         /// <returns>the connection string to our database</returns>
         public static string LoadConnectionString() => ConfigurationManager.ConnectionStrings["Default"].ConnectionString;
-        
+
+        /// <summary>
+        /// Configers Dapper to use your conventions when handling the database 
+        /// </summary>
+        private static void ConfigureDapper()
+        {
+            FluentMapper.Initialize(config =>
+            {
+                config
+                    .AddConvention<PropertyTransformConvention>()
+                    .ForEntity<PeriodEntry>()
+                    .ForEntity<PropertyValuePair>()
+                    .ForEntity<Profile>();
+            });
+
+            SqlMapper.RemoveTypeMap(typeof(DateTime));
+            SqlMapper.RemoveTypeMap(typeof(TimeSpan));
+            SqlMapper.AddTypeHandler(new DateTimeHandler());
+            SqlMapper.AddTypeHandler(new TimeSpanHandler());
+        }
+
         /// <summary>
         /// Loads a single setting from our database
         /// </summary>
@@ -39,9 +66,11 @@ namespace Pomodoro
 
                 try
                 {
-                    return dbc
-                        .QueryFirst<PropertyValuePair>(cmd)
-                        .Value.CustomConverter<T>();
+                    PropertyValuePair pair = dbc.QuerySingle<PropertyValuePair>(cmd);
+                    if (pair == null || pair.Value == null)
+                        return default;
+
+                    return pair.Value.CustomConverter<T>();
                 }
                 catch (Exception e)
                 {
@@ -146,7 +175,7 @@ namespace Pomodoro
 
                 try
                 {
-                    return dbc.QueryFirst<Profile>(cmd);
+                    return dbc.QuerySingle<Profile>(cmd);
                 }
                 catch (Exception e)
                 {
