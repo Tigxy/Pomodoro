@@ -40,9 +40,8 @@ namespace Pomodoro
                 try
                 {
                     return dbc
-                        .Query<PropertyValuePair>(cmd)
-                        .Select(pvp => CustomConverter<T>(pvp.Value))
-                        .FirstOrDefault();
+                        .QueryFirst<PropertyValuePair>(cmd)
+                        .Value.CustomConverter<T>();
                 }
                 catch (Exception e)
                 {
@@ -147,11 +146,7 @@ namespace Pomodoro
 
                 try
                 {
-                    var d = dbc.Query<Profile>(cmd).FirstOrDefault();
-                    System.Diagnostics.Debug.WriteLine("==================================================");
-                    System.Diagnostics.Debug.WriteLine(d?.DurationLongBreak);
-                    System.Diagnostics.Debug.WriteLine("==================================================");
-                    return dbc.Query<Profile>(cmd).FirstOrDefault();
+                    return dbc.QueryFirst<Profile>(cmd);
                 }
                 catch (Exception e)
                 {
@@ -221,7 +216,7 @@ namespace Pomodoro
         /// <typeparam name="T">The type to convert the string value to</typeparam>
         /// <param name="s">The string representation of <typeparamref name="T"/></param>
         /// <returns>The actual value of <typeparamref name="T"/></returns>
-        private static T CustomConverter<T>(string s)
+        private static T CustomConverter<T>(this string s)
         {
             bool success;
 
