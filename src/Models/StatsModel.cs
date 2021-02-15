@@ -1,9 +1,9 @@
 ﻿#undef POPULATE_DATABASE
 
-using Pomodoro.DB;
 using ScottPlot;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace Pomodoro.Models
@@ -65,10 +65,6 @@ namespace Pomodoro.Models
             var data = DBAccess.LoadPeriodEntries(DateTime.Now.AddDays(-7));
             var st = data.GetStatistics();
 
-            // Ensure that current day is encluded in the last 7 days view
-            if (!st.Any(s => s.Date.Date.Equals(DateTime.UtcNow.Date)))
-                st = st.Concat(new[] { new DayStatistic() { Date = DateTime.UtcNow.Date }});
-
             GenerateBarPlot(PlotControl.plt, st);
             PlotControl.UpdateLayout();
         }
@@ -80,35 +76,50 @@ namespace Pomodoro.Models
         /// <param name="statistics">The data to use</param>
         private void GenerateBarPlot(Plot plt, IEnumerable<DayStatistic> statistics)
         {
-            var latest = statistics.Max(s => s.Date);
-
             // Order list such that last day of records is at the start
-            var sorted = statistics.OrderByDescending(s => s.Date);
+            var sorted = statistics
+                .OrderBy(s => s.Date)
+                .Where(s => !s.Date.Date.Equals(DateTime.UtcNow.Date));
 
-            // Calculate the day span of the statistics
-            var day_count = latest.Subtract(statistics.Min(s => s.Date)).Days + 1;
-            double[] days = Enumerable.Range(1, day_count).Select(i => (double)i).ToArray();
-            double[] studyDurations = new double[day_count];
-            double[] breakDurations = new double[day_count];
+            // Handle 'today' differently; even if no data exists yet, it should still be displayed
+            var todaysData = statistics.Where(s => s.Date.Date == DateTime.UtcNow.Date).FirstOrDefault() 
+                ?? new DayStatistic() { Date = DateTime.UtcNow.Date };
 
-            foreach (var s in sorted)
+            int dayCount = 0;
+            if (sorted.Count() > 0)
             {
-                studyDurations[latest.Date.Subtract(s.Date).Days] = s.StudyDuration;
-                breakDurations[latest.Date.Subtract(s.Date).Days] = s.BreakDuration + s.StudyDuration;
+                // Determine the latest date (besides 'today')
+                var latest = sorted.Last().Date;
+
+                // Calculate the day span of the statistics
+                dayCount = latest.Subtract(statistics.Min(s => s.Date)).Days + 1;
+                double[] days = Enumerable.Range(1, dayCount).Select(i => (double)i).ToArray();
+                double[] studyDurations = new double[dayCount];
+                double[] breakDurations = new double[dayCount];
+
+                foreach (var s in sorted)
+                {
+                    studyDurations[latest.Date.Subtract(s.Date).Days] = s.StudyDuration;
+                    breakDurations[latest.Date.Subtract(s.Date).Days] = s.BreakDuration + s.StudyDuration;
+                }
+
+                plt.PlotBar(days, breakDurations, label: "Break duration", fillColor: Color.FromArgb(36, 182, 255));
+                plt.PlotBar(days, studyDurations, label: "Study duration", fillColor: Color.FromArgb(255, 162, 0));
             }
 
-            plt.PlotBar(days, breakDurations, label: "Break duration");
-            plt.PlotBar(days, studyDurations, label: "Study duration");
+            plt.PlotBar(new[] { dayCount + 1.0 }, new[] { todaysData.BreakDuration + todaysData.StudyDuration }, fillColor: Color.FromArgb(5, 155, 255));
+            plt.PlotBar(new[] { dayCount + 1.0 }, new[] { todaysData.StudyDuration }, fillColor: Color.FromArgb(255, 105, 0));
 
-            // Set minimum to 0
-            plt.Axis(y1: 0);
+            var maxDuration = statistics.Count() > 0 ? statistics.Max(s => s.StudyDuration + s.BreakDuration) : 0;
+            // Set minimum and maximum (otherwise plot looks ugly if only a few minutes of data exist)
+            plt.Axis(y1: 0, y2: Math.Max(4, maxDuration * 1.2));
 
-            // tick '0' should not have a day
-            var lastDayNames = new[] { "" }.Concat(sorted.Select(s => s.Date.Date.DayOfWeek.ToString())).ToArray();
-            lastDayNames[1] = "Today";
-            plt.XTicks(lastDayNames);
+            // We also have to provide a label for x=0
+            var dayNames = new List<string> { "", "Today" };
+            dayNames.InsertRange(1, sorted.Select(s => s.Date.Date.DayOfWeek.ToString()));
+
+            plt.XTicks(dayNames.ToArray());
             plt.YLabel("hours");
-
             plt.Legend(location: legendLocation.upperRight);
         }
 

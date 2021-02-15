@@ -87,7 +87,7 @@ namespace Pomodoro.Models
         {
             // Ensure that timer was already initialized
             if (timer != null)
-                return $"{Math.Max(0, timer.Minutes):D2}:{Math.Max(0, timer.Seconds):D2}";
+                return $"{Math.Max(0, (int)timer.TotalMinutes):D2}:{Math.Max(0, timer.Seconds):D2}";
             return "00:00";
         }
 

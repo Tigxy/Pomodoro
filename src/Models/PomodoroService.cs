@@ -218,15 +218,13 @@ namespace Pomodoro.Models
         /// <param name="isBreakPeriod">Whether break or study period is over</param>
         public void NotifyPeriodOver(bool isBreakPeriod)
         {
-            System.Diagnostics.Debug.WriteLine($"Period over! Is break period? {isBreakPeriod}");
-
             // As the ticker is not using the UI thread but we would like to access some UI properties,
             // we need to dispatch our actions to them
             App.Current.Dispatcher.Invoke(() =>
             {
                 _notificationMngr.Show(
                     title: App.Current.MainWindow.Title,
-                    message: isBreakPeriod ? "Take a break!" : "Study!",
+                    message: isBreakPeriod ? "Well, done, take a break!" : "Break is over, time to study!",
                     type: Notification.Wpf.NotificationType.Information,
                     expirationTime: TimeSpan.FromMilliseconds(ToolTipTimeout)
                     );
@@ -238,8 +236,6 @@ namespace Pomodoro.Models
         /// </summary>
         public void LogStatus()
         {
-            System.Diagnostics.Debug.WriteLine(Status);
-
             var timeDifference = _periodStartTime == default ? 0 : DateTime.UtcNow.Subtract(_periodStartTime).TotalSeconds;
             
             // Remove milliseconds as this is useless information for us
