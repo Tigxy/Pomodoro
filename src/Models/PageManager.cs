@@ -90,6 +90,10 @@ namespace Pomodoro.Models
                 throw new ArgumentException("No page matches the specified key");
             CurrentViewKey = key;
             CurrentView = (DependencyObject)_pageDict[key];
+
+            // Not very pretty but we have to make due as plotting library doesn't support bindings
+            if (key == "stats")
+                StatsModel.Instance.RefreshPlot();
         }
 
         /// <summary>

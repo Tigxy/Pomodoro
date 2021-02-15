@@ -128,6 +128,28 @@ namespace Pomodoro
         }
 
         /// <summary>
+        /// Stores (logs) the specified collection of <see cref="PeriodEntry"/>/>
+        /// </summary>
+        /// <param name="entries">The entries to store</param>
+        public static void SavePeriodEntry(IEnumerable<PeriodEntry> entries)
+        {
+            using (IDbConnection dbc = new SQLiteConnection(LoadConnectionString()))
+            {
+                try
+                {
+                    dbc.Execute($@"
+                            INSERT INTO PeriodEntry (start_time, duration, is_studying, is_paused) 
+                            VALUES (@StartTime, @Duration, @IsStudying, @IsPaused); 
+                            ", entries);
+                }
+                catch (Exception e)
+                {
+                    System.Diagnostics.Debug.Print(e.ToString());
+                }
+            }
+        }
+
+        /// <summary>
         /// Retrieves all <see cref="PeriodEntry"/> up until the specified point in time
         /// </summary>
         /// <param name="earliest">The earliest date to retrieve the <see cref="PeriodEntry"/> for</param>

@@ -33,8 +33,10 @@
             <Setter Property="VerticalAlignment" Value="Top"/>
         </Style>
     </Window.Resources>
-    
+
     <Grid Margin="10">
+        <ContentControl Content="{Binding CurrentView}"/>
+        
         <StackPanel Orientation="Horizontal" 
                     Visibility="{Binding IsTimerDisplayed, FallbackValue=Collapsed, Converter={StaticResource VisibleHiddenConverter}}">
             <!-- stats -->
@@ -51,6 +53,5 @@
                 Command="{Binding ChangeViewCommand}" CommandParameter="timer" 
                 Visibility="{Binding IsTimerDisplayed, FallbackValue=Collapsed, Converter={StaticResource HiddenVisibleConverter}}"
                 />
-        <ContentControl Content="{Binding CurrentView}"/>
     </Grid>
 </Window>

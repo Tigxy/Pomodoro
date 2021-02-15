@@ -11,6 +11,7 @@ namespace Pomodoro.View
         public StatsView()
         {
             InitializeComponent();
+            this.DataContext = StatsModel.Instance;
         }
     }
 }
