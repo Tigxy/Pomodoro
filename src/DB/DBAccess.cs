@@ -66,7 +66,7 @@ namespace Pomodoro
 
                 try
                 {
-                    PropertyValuePair pair = dbc.QuerySingle<PropertyValuePair>(cmd);
+                    PropertyValuePair pair = dbc.QueryFirstOrDefault<PropertyValuePair>(cmd);
                     if (pair == null || pair.Value == null)
                         return default;
 
@@ -197,7 +197,7 @@ namespace Pomodoro
 
                 try
                 {
-                    return dbc.QuerySingle<Profile>(cmd);
+                    return dbc.QueryFirstOrDefault<Profile>(cmd);
                 }
                 catch (Exception e)
                 {

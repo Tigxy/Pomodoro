@@ -10,7 +10,7 @@
         FontSize="20"
         FontFamily="Calibri"
         Closing="Window_Closing" Initialized="Window_Initialized"
-        Height="440" Width="500"
+        Height="440" Width="650"
         MinHeight="440" MinWidth="480">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />

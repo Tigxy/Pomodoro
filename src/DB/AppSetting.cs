@@ -47,8 +47,13 @@ namespace Pomodoro.DB
         {
             window.Top = WindowTop;
             window.Left = WindowLeft;
-            window.Height = WindowHeight;
-            window.Width = WindowWidth;
+            
+            // Only apply height and width settings when settings aren't default
+            // otherwise, just keep it the way the application was designed
+            if (WindowHeight != 0)
+                window.Height = WindowHeight;
+            if (WindowWidth != 0)
+                window.Width = WindowWidth;
 
             // Would not make any sense starting minimized
             if (WindowState != WindowState.Minimized)

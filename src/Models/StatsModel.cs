@@ -100,6 +100,9 @@ namespace Pomodoro.Models
             plt.PlotBar(days, breakDurations, label: "Break duration");
             plt.PlotBar(days, studyDurations, label: "Study duration");
 
+            // Set minimum to 0
+            plt.Axis(y1: 0);
+
             // tick '0' should not have a day
             var lastDayNames = new[] { "" }.Concat(sorted.Select(s => s.Date.Date.DayOfWeek.ToString())).ToArray();
             lastDayNames[1] = "Today";
