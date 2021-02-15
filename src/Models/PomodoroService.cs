@@ -1,23 +1,23 @@
-﻿#define DEBUG_SHORT_TIME
-
-using System;
-using System.ComponentModel;
+﻿using System;
 using System.Timers;
-using Timer = System.Timers.Timer;
 using Notification.Wpf;
 using Pomodoro.UI;
-using Pomodoro.DB;
 
-namespace Pomodoro
+namespace Pomodoro.Models
 {
-    public class PDService : INotifyPropertyChanged
+    public class PomodoroService : BaseModel
     {
         private const int TickFrequency = 200;          // in ms, tick faster than what we display to increase responsiveness
         private const int ToolTipTimeout = (int)1e4;    // in ms
         private bool _isTimerReset = true;              // initially, timer starts out reset
+        private Profile _profile;
 
-        public PDStatus Status { get; private set; }
-        public Profile Profile { get; } = new Profile();
+        public Status Status { get; private set; }
+        public Profile Profile
+        {
+            get => _profile;
+            private set { _profile = value; OnPropertyChanged(nameof(_profile)); }
+        }
         
         private readonly Timer _ticker;
         private DateTime _periodStartTime;
@@ -37,14 +37,11 @@ namespace Pomodoro
         public RelayCommand StopCommand { get; }
         #endregion
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
-
-        private static PDService _instance;
+        private static PomodoroService _instance;
         /// <summary>
-        /// Singleton instance of <see cref="PDService"/>
+        /// Singleton instance of <see cref="PomodoroService"/>
         /// </summary>
-        public static PDService Instance
+        public static PomodoroService Instance
         {
             get
             {
@@ -53,7 +50,7 @@ namespace Pomodoro
                     lock (new object())
                     {
                         if (_instance == null)
-                            _instance = new PDService();
+                            _instance = new PomodoroService();
                     }
                 }
                 return _instance;
@@ -61,10 +58,10 @@ namespace Pomodoro
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PDService"/> class
+        /// Initializes a new instance of the <see cref="PomodoroService"/> class
         /// </summary>
         /// <param name="profile">The proflie to use</param>
-        private PDService()
+        private PomodoroService()
         {
             _ticker = new Timer(interval: TickFrequency);
 
@@ -75,8 +72,10 @@ namespace Pomodoro
             ResetCommand = new RelayCommand((p) => Reset());
             ToggleStartPauseCommand = new RelayCommand((p) => ToggleStartPause());
 
-            Status = new PDStatus();
-            Profile.PropertyChanged += (s, e) => { Stop(); ChangePeriodType(PDPeriodType.Studying); };
+            Status = new Status();
+            Profile = DBAccess.GetProfile("default") ?? new Profile();
+            Profile.PropertyChanged += (s, e) => Restart();
+            Restart();
         }
 
         /// <summary>
@@ -86,11 +85,8 @@ namespace Pomodoro
         public void ChangeProfile(Profile profile)
         {
             Stop();
-
-            // We need to copy all the properties rather than just assigning a new profile to 
-            // ensure that the UI bindings are not being broken
-            Utils.CopyProperties(profile, Profile);
-            ChangePeriodType(PDPeriodType.Studying);
+            Profile = profile;
+            ChangePeriodType(PeriodType.Studying);
         }
 
         /// <summary>
@@ -152,34 +148,43 @@ namespace Pomodoro
         }
 
         /// <summary>
+        /// Restarts the whole service
+        /// </summary>
+        private void Restart()
+        {
+            Stop(); 
+            ChangePeriodType(PeriodType.Studying);
+        }
+
+        /// <summary>
         /// Determines what the next periods' type will be. 
         /// In general: after a pause, study period begins and vice versa
         /// </summary>
         /// <returns>The type the next period is expected to have</returns>
-        public PDPeriodType GetNextPeriodType()
+        public PeriodType GetNextPeriodType()
         {
             if (Status.IsTakingBreak)
-                return PDPeriodType.Studying;
+                return PeriodType.Studying;
             
             if (Status.CyclesDone % Profile.CyclesUntilLongBreak == 0)
-                return PDPeriodType.LongBreak;
+                return PeriodType.LongBreak;
 
-            return PDPeriodType.ShortBreak;
+            return PeriodType.ShortBreak;
         }
 
         /// <summary>
-        /// Returns the corresponding timespan to the specified <see cref="PDPeriodType"/> based on the currently selected <see cref="Profile"/>
+        /// Returns the corresponding timespan to the specified <see cref="PeriodType"/> based on the currently selected <see cref="Profile"/>
         /// </summary>
-        /// <param name="periodType">The <see cref="PDPeriodType"/> to get the <see cref="TimeSpan"/> for</param>
-        /// <returns>The to the <see cref="PDPeriodType"/> corresponding <see cref="TimeSpan"/></returns>
-        public TimeSpan GetPeriodTimespan(PDPeriodType periodType)
+        /// <param name="periodType">The <see cref="PeriodType"/> to get the <see cref="TimeSpan"/> for</param>
+        /// <returns>The to the <see cref="PeriodType"/> corresponding <see cref="TimeSpan"/></returns>
+        public TimeSpan GetPeriodTimespan(PeriodType periodType)
         {
-            int duration = periodType == PDPeriodType.Studying
+            int duration = periodType == PeriodType.Studying
                 ? Profile.DurationStudying
-                : periodType == PDPeriodType.ShortBreak
+                : periodType == PeriodType.ShortBreak
                 ? Profile.DurationShortBreak : Profile.DurationLongBreak;
 
-#if DEBUG_SHORT_TIME
+#if DEBUG
             return TimeSpan.FromSeconds(duration);
 #else
             return TimeSpan.FromMinutes(duration);
@@ -190,7 +195,7 @@ namespace Pomodoro
         /// Changes from the current period type (eg learning, ...) to the specified one
         /// </summary>
         /// <param name="periodType">The period type to change to</param>
-        public void ChangePeriodType(PDPeriodType periodType)
+        public void ChangePeriodType(PeriodType periodType)
         {
             // Ignore call if current and requested period type match
             if (Status.PeriodType == periodType)

@@ -25,22 +25,32 @@
 
         <Style x:Key="NavigationButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Width" Value="35"/>
             <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
-            <Setter Property="Margin" Value="10"/>
-            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="FontSize" Value="25"/>
+            <Setter Property="Margin" Value="3"/>
             <Setter Property="VerticalAlignment" Value="Top"/>
         </Style>
     </Window.Resources>
     
     <Grid Margin="10">
-        <Button Content="&#xE711;" Style="{StaticResource NavigationButtonStyle}" Click="ToggleSettingsView"
-                    Visibility="{Binding IsSettingsVisible, FallbackValue=Collapsed, Converter={StaticResource VisibleHiddenConverter}}"/>
+        <StackPanel Orientation="Horizontal" 
+                    Visibility="{Binding IsTimerDisplayed, FallbackValue=Collapsed, Converter={StaticResource VisibleHiddenConverter}}">
+            <!-- stats -->
+            <Button Content="&#xE9D2;" Style="{StaticResource NavigationButtonStyle}" 
+                Command="{Binding ChangeViewCommand}" CommandParameter="stats"/>
 
-        <Button Content="&#xE713;" Style="{StaticResource NavigationButtonStyle}" Click="ToggleSettingsView" 
-                    Visibility="{Binding IsSettingsVisible, FallbackValue=Collapsed, Converter={StaticResource HiddenVisibleConverter}}"/>
+            <!-- settings -->
+            <Button Content="&#xE713;" Style="{StaticResource NavigationButtonStyle}" 
+                Command="{Binding ChangeViewCommand}" CommandParameter="settings"/>
+        </StackPanel>
 
+        <!-- back -->
+        <Button Content="&#xF0D3;" Style="{StaticResource NavigationButtonStyle}" HorizontalAlignment="Left"
+                Command="{Binding ChangeViewCommand}" CommandParameter="timer" 
+                Visibility="{Binding IsTimerDisplayed, FallbackValue=Collapsed, Converter={StaticResource HiddenVisibleConverter}}"
+                />
         <ContentControl Content="{Binding CurrentView}"/>
     </Grid>
 </Window>

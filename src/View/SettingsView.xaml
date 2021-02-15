@@ -29,6 +29,18 @@
             <Setter Property="HorizontalContentAlignment" Value="Right"/>
             <Setter Property="MinWidth" Value="40"/>
         </Style>
+        <Style x:Key="SettingsCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="LayoutTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Margin" Value="3 10"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FlowDirection" Value="LeftToRight"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
     </UserControl.Resources>
     
     <Grid HorizontalAlignment="Center">
@@ -70,9 +82,7 @@
         <TextBox Style="{StaticResource SettingsTextBoxStyle}"  Grid.Row="4" Grid.Column="1" Text="{Binding CyclesUntilLongBreak, UpdateSourceTrigger=PropertyChanged}"/>
         <TextBlock Style="{StaticResource SettingsTextBlockStyle}"  Grid.Row="4" Grid.Column="2" Text="min"/>
 
-        <CheckBox Grid.Row="5" Grid.ColumnSpan="3" Content="Automatically switch to next period once done" Margin="3 10"
-                  FlowDirection="RightToLeft" VerticalAlignment="Center" VerticalContentAlignment="Center"
-                  IsChecked="{Binding AutoSwitchModeAfterEnd, UpdateSourceTrigger=PropertyChanged}"/>
-
+        <CheckBox Grid.Row="5" Grid.ColumnSpan="3" Content="Automatically switch to next period once done"
+                  IsChecked="{Binding AutoSwitchModeAfterEnd, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsCheckBoxStyle}"/>
     </Grid>
 </UserControl>

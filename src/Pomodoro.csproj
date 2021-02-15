@@ -77,10 +77,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="UI\RelayCommand.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="Models\BaseModel.cs" />
+    <Compile Include="Models\RelayCommand.cs" />
+    <Compile Include="Models\PageManager.cs" />
     <Compile Include="View\SettingsView.xaml.cs">
       <DependentUpon>SettingsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\StatsView.xaml.cs">
+      <DependentUpon>StatsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\TimerView.xaml.cs">
       <DependentUpon>TimerView.xaml</DependentUpon>
@@ -98,7 +102,7 @@
     <Compile Include="DB\DBAccess.cs" />
     <Compile Include="DB\AppSetting.cs" />
     <Compile Include="DB\PeriodEntry.cs" />
-    <Compile Include="DB\Profile.cs" />
+    <Compile Include="Models\Profile.cs" />
     <Compile Include="DB\PropertyValuePair.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -108,15 +112,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\StatsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\TimerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PDPeriodType.cs" />
-    <Compile Include="PDService.cs" />
-    <Compile Include="PDStatus.cs" />
+    <Compile Include="Models\PeriodType.cs" />
+    <Compile Include="Models\PomodoroService.cs" />
+    <Compile Include="Models\Status.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Pomodoro.UI
+namespace Pomodoro.Models
 {
     /// <summary>
     /// A command that relays commands by calling the specified functions

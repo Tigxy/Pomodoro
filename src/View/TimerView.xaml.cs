@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Pomodoro.Models;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Pomodoro.View
@@ -11,7 +12,7 @@ namespace Pomodoro.View
         public TimerView()
         {
             InitializeComponent();
-            this.DataContext = PDService.Instance;
+            this.DataContext = PomodoroService.Instance;
         }
 
         private void Btn_ChangeProcess(object sender, RoutedEventArgs e)
@@ -20,10 +21,10 @@ namespace Pomodoro.View
             {
                 string tag = (string)btn.Tag;
                 var ptype =
-                    tag == "short" ? PDPeriodType.ShortBreak :
-                    tag == "long" ? PDPeriodType.LongBreak :
-                    tag == "study" ? PDPeriodType.Studying : PDService.Instance.GetNextPeriodType();
-                PDService.Instance.ChangePeriodType(ptype);
+                    tag == "short" ? PeriodType.ShortBreak :
+                    tag == "long" ? PeriodType.LongBreak :
+                    tag == "study" ? PeriodType.Studying : PomodoroService.Instance.GetNextPeriodType();
+                PomodoroService.Instance.ChangePeriodType(ptype);
             }
         }
     }

@@ -10,5 +10,4 @@ Current view:
 ![current view](resources/current_view.png)
 
 ### Remaks
-Please feel free to share any kind of feedback.  
-As frontend development is not my forte, I'd especially appreciate some there.
+Please feel free to share any kind of feedback or suggestions.

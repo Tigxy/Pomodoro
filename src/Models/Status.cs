@@ -1,20 +1,19 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using System.Configuration;
 
-namespace Pomodoro
+namespace Pomodoro.Models
 {
-    public class PDStatus : INotifyPropertyChanged
+    public class Status : BaseModel
     {
         #region Fields
-        private PDPeriodType _periodType = PDPeriodType.Studying;
+        private PeriodType _periodType = PeriodType.Studying;
         private bool _isPaused = true;
         private TimeSpan _timeRemaining;
         private uint _cyclesDone = 0;
         #endregion
 
         #region Properties
-        public PDPeriodType PeriodType
+        public PeriodType PeriodType
         {
             get => _periodType;
             set { _periodType = value; OnPeriodTypeChanged(); }
@@ -40,17 +39,14 @@ namespace Pomodoro
         #endregion
 
         #region Helper properties
-        public bool IsStudying => PeriodType == PDPeriodType.Studying;
-        public bool IsShortBreak => PeriodType == PDPeriodType.ShortBreak;
-        public bool IsLongBreak => PeriodType == PDPeriodType.LongBreak;
+        public bool IsStudying => PeriodType == PeriodType.Studying;
+        public bool IsShortBreak => PeriodType == PeriodType.ShortBreak;
+        public bool IsLongBreak => PeriodType == PeriodType.LongBreak;
         public bool IsTakingBreak => !IsStudying;
         public string STimeRemaining => ToTimeString(TimeRemaining);
         public bool IsPeriodComplete => TimeRemaining.TotalSeconds < 0;
         public string CurrentPeriod => IsStudying ? "Studying" : "Taking a break";
         #endregion
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string property) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
 
         private void OnPeriodTypeChanged()
         {
@@ -69,11 +65,14 @@ namespace Pomodoro
             OnPropertyChanged(nameof(IsPeriodComplete));
         }
 
-        public void DecreaseOneSecond()
-        {
-            TimeRemaining = TimeRemaining.Subtract(TimeSpan.FromSeconds(1));
-        }
+        /// <summary>
+        /// Decreases the remaining time by one second
+        /// </summary>
+        public void DecreaseOneSecond() => DecreaseTime(seconds: 1);
 
+        /// <summary>
+        /// Decreases the remaining time by the specified amount of time
+        /// </summary>
         public void DecreaseTime(int minutes = 0, int seconds = 0, int milliseconds = 0)
         {
             TimeRemaining = TimeRemaining.Subtract(new TimeSpan(days: 0, hours: 0, minutes: minutes, seconds: seconds, milliseconds: milliseconds));

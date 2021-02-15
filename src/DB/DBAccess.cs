@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Pomodoro.DB;
+using Pomodoro.Models;
 using System;
 using System.CodeDom;
 using System.Collections;
@@ -12,6 +13,10 @@ using System.Windows.Forms;
 
 namespace Pomodoro
 {
+    /// <summary>
+    /// Provides functions to store and retrieve data from a database
+    /// Note: This most likely needs some more love by more experienced SQL users
+    /// </summary>
     public static class DBAccess
     {
         /// <summary>
@@ -142,6 +147,10 @@ namespace Pomodoro
 
                 try
                 {
+                    var d = dbc.Query<Profile>(cmd).FirstOrDefault();
+                    System.Diagnostics.Debug.WriteLine("==================================================");
+                    System.Diagnostics.Debug.WriteLine(d?.DurationLongBreak);
+                    System.Diagnostics.Debug.WriteLine("==================================================");
                     return dbc.Query<Profile>(cmd).FirstOrDefault();
                 }
                 catch (Exception e)
@@ -187,7 +196,7 @@ namespace Pomodoro
                 {
                     dbc.Execute($@"
                             INSERT INTO Profile (name, duration_short_break, duration_long_break, duration_studying, cycles_until_long_break, auto_switch_mode_after_end) 
-                            VALUES (@Name, @DurationLongBreak, @DurationShortBreak, @DurationStudying, @CyclesUntilLongBreak, @AutoSwitchModeAfterEnd)
+                            VALUES (@Name, @DurationShortBreak, @DurationLongBreak, @DurationStudying, @CyclesUntilLongBreak, @AutoSwitchModeAfterEnd)
                             ON CONFLICT(name) DO UPDATE SET 
                                 duration_short_break={profile.DurationShortBreak}, 
                                 duration_long_break={profile.DurationLongBreak}, 

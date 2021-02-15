@@ -1,4 +1,5 @@
 ﻿using Pomodoro.DB;
+using Pomodoro.Models;
 using System.Windows.Controls;
 
 namespace Pomodoro.View
@@ -11,7 +12,7 @@ namespace Pomodoro.View
         public SettingsView()
         {
             InitializeComponent();
-            this.DataContext = PDService.Instance.Profile;
+            this.DataContext = PomodoroService.Instance.Profile;
         }
     }
 }
