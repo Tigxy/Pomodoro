@@ -1,9 +1,6 @@
 # Pomodoro
 A Pomodoro implementation which should, once finished, display statistics about the learning process.
 
-ToDo's:
- - generating an icon to improve appearance
-
 ![current view timer](resources/current_view_timer.png)
 ![current view stats](resources/current_view_stats.png)
 
