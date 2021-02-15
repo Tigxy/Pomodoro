@@ -42,15 +42,6 @@ namespace Pomodoro.Models
         /// </summary>
         private StatsModel()
         {
-            // Sadly ScottPlot does not support content bindings, therefore we need
-            // to break MVVM by instantiating UI controls in model
-            // see https://github.com/ScottPlot/ScottPlot/issues/494
-            PlotControl = new WpfPlot(new Plot())
-            {
-                IsManipulationEnabled = false,
-                IsEnabled = false
-            };
-
 #if POPULATE_DATABASE
             // Allow playing around with new data (e.g. while developping)
             PopulateDB();
@@ -62,6 +53,15 @@ namespace Pomodoro.Models
         /// </summary>
         public void RefreshPlot()
         {
+            // Sadly ScottPlot does not support content bindings, therefore we need
+            // to break MVVM by instantiating UI controls in model
+            // see https://github.com/ScottPlot/ScottPlot/issues/494
+            PlotControl = new WpfPlot(new Plot())
+            {
+                IsManipulationEnabled = false,
+                IsEnabled = false
+            };
+
             var data = DBAccess.LoadPeriodEntries(DateTime.Now.AddDays(-7));
             var st = data.GetStatistics();
 

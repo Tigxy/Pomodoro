@@ -78,11 +78,16 @@ namespace Pomodoro.Models
             TimeRemaining = TimeRemaining.Subtract(new TimeSpan(days: 0, hours: 0, minutes: minutes, seconds: seconds, milliseconds: milliseconds));
         }
 
+        /// <summary>
+        /// Generates a nice string representation of the remaining time
+        /// </summary>
+        /// <param name="timer"></param>
+        /// <returns></returns>
         private string ToTimeString(TimeSpan timer)
         {
             // Ensure that timer was already initialized
             if (timer != null)
-                return $"{(timer.TotalSeconds < 0 ? "-" : "")} {Math.Abs(timer.Minutes):D2}:{Math.Abs(timer.Seconds):D2}";
+                return $"{Math.Max(0, timer.Minutes):D2}:{Math.Max(0, timer.Seconds):D2}";
             return "00:00";
         }
 
