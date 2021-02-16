@@ -5,17 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Pomodoro.View"
              xmlns:ui ="clr-namespace:Pomodoro.UI"
-             mc:Ignorable="d" >
-    <d:DesignerProperties.DesignStyle>
-        <Style TargetType="UserControl">
-            <Setter Property="Height" Value="450"/>
-            <Setter Property="Width" Value="450"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="FontFamily" Value="Calibri"/>
-        </Style>
-    </d:DesignerProperties.DesignStyle>
+             mc:Ignorable="d" 
+             d:DesignProperties.DesignStyle="{StaticResource ResourceKey=UserControlDesignStyle}">
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <ui:BooleanToVisibilityConverter
             x:Key="VisibleHiddenConverter" 
             True="Visible" 
@@ -24,13 +16,6 @@
             x:Key="HiddenVisibleConverter" 
             True="Collapsed" 
             False="Visible" />
-
-        <Style x:Key="ButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
-        </Style>
     </UserControl.Resources>
     <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
         <Grid.RowDefinitions>
@@ -39,52 +24,56 @@
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="{Binding Status.CurrentPeriod, FallbackValue=Studying}" Margin="0 20" FontSize="50"/>
-        <TextBlock Grid.Row="1" Text="{Binding Status.STimeRemaining, FallbackValue=00:00}" HorizontalAlignment="Center" FontSize="40"/>
+
+        <!-- Heading -->        
+        <TextBlock Grid.Row="0" Text="{Binding Status.CurrentPeriod, FallbackValue=Studying}"
+                   Style="{DynamicResource ResourceKey=HeaderTextBlockStyle}" />
+        <TextBlock Grid.Row="1" Text="{Binding Status.STimeRemaining, FallbackValue=00:00}"
+                   Style="{DynamicResource ResourceKey=SubHeaderTextBlockStyle}" />
 
         <!-- UI while studying -->
         <StackPanel Grid.Row="2" Margin="0 10" Orientation="Horizontal" HorizontalAlignment="Center"
                     Visibility="{Binding Status.IsStudying, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}">
-            <Button Content="&#xE769;" Style="{StaticResource ButtonStyle}" Command="{Binding ToggleStartPauseCommand}" 
+            <Button Content="&#xE769;" Style="{DynamicResource ResourceKey=ButtonStyle}" Command="{Binding ToggleStartPauseCommand}" 
                     Visibility="{Binding Status.IsPaused, FallbackValue=Collapsed, Converter={StaticResource HiddenVisibleConverter}}"/>
-            <Button Content="&#xE768;" Style="{StaticResource ButtonStyle}" Command="{Binding ToggleStartPauseCommand}" 
+            <Button Content="&#xE768;" Style="{DynamicResource ResourceKey=ButtonStyle}" Command="{Binding ToggleStartPauseCommand}" 
                     Visibility="{Binding Status.IsPaused, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}"/>
-            <Button Content="&#xE72C;" Style="{StaticResource ButtonStyle}" Command="{Binding ResetCommand}"  
+            <Button Content="&#xE72C;" Style="{DynamicResource ResourceKey=ButtonStyle}" Command="{Binding ResetCommand}"  
                     Visibility="{Binding IsTimerReset, FallbackValue=Visible, Converter={StaticResource HiddenVisibleConverter}}"/>
         </StackPanel>
 
         <!-- UI while taking a break -->
         <StackPanel Grid.Row="2" Margin="0 10" Orientation="Horizontal" HorizontalAlignment="Center"
                     Visibility="{Binding Status.IsStudying, FallbackValue=Hidden, Converter={StaticResource HiddenVisibleConverter}}">
-            <Button Content="&#xE769;" Style="{StaticResource ButtonStyle}" Command="{Binding ToggleStartPauseCommand}"  
+            <Button Content="&#xE769;" Style="{DynamicResource ResourceKey=ButtonStyle}" Command="{Binding ToggleStartPauseCommand}"  
                     Visibility="{Binding Status.IsPaused, FallbackValue=Visible, Converter={StaticResource HiddenVisibleConverter}}"/>
-            <Button Content="&#xE768;" Style="{StaticResource ButtonStyle}"  Command="{Binding ToggleStartPauseCommand}" 
+            <Button Content="&#xE768;" Style="{DynamicResource ResourceKey=ButtonStyle}"  Command="{Binding ToggleStartPauseCommand}" 
                     Visibility="{Binding Status.IsPaused, FallbackValue=Collapsed, Converter={StaticResource VisibleHiddenConverter}}"/>
         </StackPanel>
 
         <!-- Options while in progress -->
         <StackPanel Grid.Row="3"
                     Visibility="{Binding Status.IsPeriodComplete, FallbackValue=Visible, Converter={StaticResource HiddenVisibleConverter}}">
-            <Button Background="Transparent" Content="I need a short break" Margin="5" Padding="5" Tag="short"
+            <Button Content="I need a short break" Tag="short"
                 Visibility="{Binding Status.IsStudying, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}"
-                Click="Btn_ChangeProcess"/>
-            <Button Background="Transparent" Content="I need a long break" Margin="5" Padding="5" Tag="long"
+                Click="Btn_ChangeProcess" Style="{DynamicResource ResourceKey=OptionsButtonStyle}"/>
+            <Button Content="I need a long break" Tag="long"
                 Visibility="{Binding Status.IsStudying, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}"
-                Click="Btn_ChangeProcess"/>
-            <Button Background="Transparent" Content="Continue studying" Tag="study"
+                Click="Btn_ChangeProcess" Style="{DynamicResource ResourceKey=OptionsButtonStyle}"/>
+            <Button Content="Continue studying" Tag="study"
                 Visibility="{Binding Status.IsStudying, FallbackValue=Hidden, Converter={StaticResource HiddenVisibleConverter}}"
-                Click="Btn_ChangeProcess"/>
+                Click="Btn_ChangeProcess" Style="{DynamicResource ResourceKey=OptionsButtonStyle}"/>
         </StackPanel>
 
         <!-- Options when done -->
         <StackPanel Grid.Row="3"
                     Visibility="{Binding Status.IsPeriodComplete, FallbackValue=Collapsed, Converter={StaticResource VisibleHiddenConverter}}">
-            <Button Background="Transparent" Content="Take a break" Margin="5" Padding="5" Tag="break"
-                Visibility="{Binding Status.IsStudying, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}"
-                Click="Btn_ChangeProcess"/>
-            <Button Background="Transparent" Content="Continue studying"
+            <Button Content="Take a break" Tag="break"
+                Visibility="{Binding Status.IsStudying, FallbackValue=Visible, Converter={StaticResource VisibleHiddenConverter}}" 
+                Click="Btn_ChangeProcess" Style="{DynamicResource ResourceKey=OptionsButtonStyle}"/>
+            <Button Content="Continue studying"
                 Visibility="{Binding Status.IsStudying, FallbackValue=Hidden, Converter={StaticResource HiddenVisibleConverter}}"
-                Click="Btn_ChangeProcess"/>
+                Click="Btn_ChangeProcess" Style="{DynamicResource ResourceKey=OptionsButtonStyle}"/>
         </StackPanel>
     </Grid>
 </UserControl>
