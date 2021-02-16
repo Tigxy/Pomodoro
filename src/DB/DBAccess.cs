@@ -4,14 +4,11 @@ using Pomodoro.DB;
 using Pomodoro.DB.Handlers;
 using Pomodoro.Models;
 using System;
-using System.CodeDom;
-using System.Collections;
+using System.IO;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SQLite;
-using System.Linq;
-using System.Windows.Forms;
 
 namespace Pomodoro
 {
@@ -24,13 +21,25 @@ namespace Pomodoro
         static DBAccess()
         {
             ConfigureDapper();
+#if (!DEBUG)
+            // As the usual program installation directory requires administrator priviledges, 
+            // for in production use, we need to move our database to the application data directory.
+            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var folderPath = Path.Combine(appDataPath, "Pomodoro");
+            AppDomain.CurrentDomain.SetData("DataDirectory", folderPath);
+#endif
         }
 
         /// <summary>
         /// Loads the connections string to our database
         /// </summary>
         /// <returns>the connection string to our database</returns>
-        public static string LoadConnectionString() => ConfigurationManager.ConnectionStrings["Default"].ConnectionString;
+        public static string LoadConnectionString()
+        {
+            // Get connection string and replace data directory
+            var cs = ConfigurationManager.ConnectionStrings["Default"].ConnectionString;
+            return String.Format(cs, AppDomain.CurrentDomain.GetData("DataDirectory") ?? ".");
+        }
 
         /// <summary>
         /// Configers Dapper to use your conventions when handling the database 
