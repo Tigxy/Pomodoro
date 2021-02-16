@@ -105,7 +105,6 @@
     <Compile Include="Models\DayStatistic.cs" />
     <Compile Include="Models\StatisticUtils.cs" />
     <Compile Include="Models\StatisticsModel.cs" />
-    <Compile Include="Settings.cs" />
     <Compile Include="View\SettingsView.xaml.cs">
       <DependentUpon>SettingsView.xaml</DependentUpon>
     </Compile>
