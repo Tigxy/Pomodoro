@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Windows;
+using Pomodoro.Models;
 using Pomodoro.View;
 
-namespace Pomodoro.Models
+namespace Pomodoro
 {
     public class PageManager : BaseModel
     {
         private string _currentViewKey;
+        private int _selectedThemeIndex;
         private DependencyObject _currentView;
         private readonly ResourceDictionary _pageDict = new ResourceDictionary();
+        private readonly string[] _themes = new string[] { "../Themes/LightTheme.xaml", "../Themes/DarkTheme.xaml" };
 
         private static PageManager _instance;
         /// <summary>
@@ -46,9 +49,19 @@ namespace Pomodoro.Models
         public bool IsSettingsDisplayed => CurrentViewKey == "settings";
 
         /// <summary>
+        /// Indicator whether application is displayed with dark theme
+        /// </summary>
+        public bool IsDarkThemeUsed => _selectedThemeIndex == 1;
+
+        /// <summary>
         /// UI Command to change the currently displayed view
         /// </summary>
         public RelayCommand ChangeViewCommand { get; }
+        
+        /// <summary>
+        /// A command that changes the theme of the application
+        /// </summary>
+        public RelayCommand ChangeThemeCommand { get; }
 
         /// <summary>
         /// The key of the view that should currently be displayed
@@ -67,7 +80,7 @@ namespace Pomodoro.Models
             get => _currentView;
             private set { _currentView = value; OnViewChanged(); }
         }
-
+        
         /// <summary>
         /// Initializes a new instance of <see cref="PageManager"/>
         /// </summary>
@@ -77,7 +90,20 @@ namespace Pomodoro.Models
             RegisterPage("timer", new TimerView());
             RegisterPage("settings", new SettingsView());
             ChangeViewCommand = new RelayCommand((p) => SelectPage((string)p));
+            ChangeThemeCommand = new RelayCommand((p) => ToggleTheme());
             SelectPage("timer");
+
+            _selectedThemeIndex = DBAccess.LoadParameter<int>("selected_theme_index");
+            if (_selectedThemeIndex != 0)
+                SelectTheme(_selectedThemeIndex);
+        }
+
+        /// <summary>
+        /// Destructor
+        /// </summary>
+        ~PageManager()
+        {
+            DBAccess.SaveParameter("selected_theme_index", _selectedThemeIndex);
         }
 
         /// <summary>
@@ -93,7 +119,7 @@ namespace Pomodoro.Models
 
             // Not very pretty but we have to make due as plotting library doesn't support bindings
             if (key == "stats")
-                StatsModel.Instance.RefreshPlot();
+                StatisticsModel.Instance.RefreshPlot();
         }
 
         /// <summary>
@@ -117,6 +143,33 @@ namespace Pomodoro.Models
             OnPropertyChanged(nameof(IsTimerDisplayed));
             OnPropertyChanged(nameof(IsStatsDisplayed));
             OnPropertyChanged(nameof(IsSettingsDisplayed));
+        }
+
+        /// <summary>
+        /// Toggles the theme between dark and light mode
+        /// </summary>
+        private void ToggleTheme()
+        {
+            _selectedThemeIndex = (_selectedThemeIndex + 1) % 2;
+            SelectTheme(_selectedThemeIndex);
+        }
+
+        /// <summary>
+        /// Selects the specified theme
+        /// </summary>
+        /// <param name="themeIndex">The theme to select and display</param>
+        private void SelectTheme(int themeIndex)
+        {
+            _selectedThemeIndex = themeIndex;
+            var theme = _themes[themeIndex];
+            var resourceDict = new ResourceDictionary
+            {
+                Source = new Uri(theme, UriKind.Relative)
+            };
+
+            if (App.Current.Resources.MergedDictionaries.Count > 0)
+                App.Current.Resources.MergedDictionaries.RemoveAt(0);
+            App.Current.Resources.MergedDictionaries.Insert(0, resourceDict);
         }
     }
 }

@@ -4,45 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Pomodoro.View"
-             mc:Ignorable="d">
-    <d:DesignerProperties.DesignStyle>
-        <Style TargetType="UserControl">
-            <Setter Property="Height" Value="450"/>
-            <Setter Property="Width" Value="450"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="FontFamily" Value="Calibri"/>
-            <Setter Property="FontSize" Value="16"/>
-        </Style>
-    </d:DesignerProperties.DesignStyle>
-
-    <UserControl.Resources>
-        <Style x:Key="SettingsTextBlockStyle" TargetType="TextBlock">
-            <Setter Property="Margin" Value="3 5 10 5"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style x:Key="SettingsTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Margin" Value="3 5"/>
-            <Setter Property="Padding" Value="2"/>
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalContentAlignment" Value="Right"/>
-            <Setter Property="MinWidth" Value="40"/>
-        </Style>
-        <Style x:Key="SettingsCheckBoxStyle" TargetType="CheckBox">
-            <Setter Property="LayoutTransform">
-                <Setter.Value>
-                    <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Margin" Value="3 10"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="FlowDirection" Value="LeftToRight"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="FontSize" Value="14"/>
-        </Style>
-    </UserControl.Resources>
-    
+             mc:Ignorable="d"
+             d:DesignProperties.DesignStyle="{StaticResource ResourceKey=UserControlDesignStyle}">
     <Grid HorizontalAlignment="Center">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -59,30 +22,36 @@
         </Grid.RowDefinitions>
 
         <!-- Heading -->
-        <TextBlock Style="{StaticResource SettingsTextBlockStyle}" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center"
-                   Text="Settings" FontSize="25" Margin="10"/>
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="Settings"
+                   Style="{DynamicResource ResourceKey=SubHeaderTextBlockStyle}" />
         
         <!-- Duration studying -->
-        <TextBlock Style="{StaticResource SettingsTextBlockStyle}"  Grid.Row="1" Grid.Column="0" Text="Duration studying"/>
-        <TextBox Style="{StaticResource SettingsTextBoxStyle}"  Grid.Row="1" Grid.Column="1" Text="{Binding DurationStudying, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBlock Style="{StaticResource SettingsTextBlockStyle}"  Grid.Row="1" Grid.Column="2" Text="min"/>
+        <TextBlock Style="{DynamicResource ResourceKey=SettingsTextBlockStyle}"  Grid.Row="1" Grid.Column="0" Text="Duration studying"/>
+        <TextBox Style="{DynamicResource ResourceKey=SettingsTextBoxStyle}"  Grid.Row="1" Grid.Column="1" 
+                 Text="{Binding DurationStudying, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Style="{DynamicResource ResourceKey=SettingsTextBlockStyle}"  Grid.Row="1" Grid.Column="2" Text="min"/>
 
         <!-- Duration short break -->
-        <TextBlock Style="{StaticResource SettingsTextBlockStyle}"  Grid.Row="2" Grid.Column="0" Text="Duration short break"/>
-        <TextBox Style="{StaticResource SettingsTextBoxStyle}"  Grid.Row="2" Grid.Column="1" Text="{Binding DurationShortBreak, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBlock Style="{StaticResource SettingsTextBlockStyle}"  Grid.Row="2" Grid.Column="2" Text="min"/>
+        <TextBlock Style="{DynamicResource ResourceKey=SettingsTextBlockStyle}"  Grid.Row="2" Grid.Column="0" Text="Duration short break"/>
+        <TextBox Style="{DynamicResource ResourceKey=SettingsTextBoxStyle}"  Grid.Row="2" Grid.Column="1" 
+                 Text="{Binding DurationShortBreak, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Style="{DynamicResource ResourceKey=SettingsTextBlockStyle}"  Grid.Row="2" Grid.Column="2" Text="min"/>
         
         <!-- Duration long break -->
-        <TextBlock Style="{StaticResource SettingsTextBlockStyle}"  Grid.Row="3" Grid.Column="0" Text="Duration long break"/>
-        <TextBox Style="{StaticResource SettingsTextBoxStyle}"  Grid.Row="3" Grid.Column="1" Text="{Binding DurationLongBreak, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBlock Style="{StaticResource SettingsTextBlockStyle}"  Grid.Row="3" Grid.Column="2" Text="min"/>
+        <TextBlock Style="{DynamicResource ResourceKey=SettingsTextBlockStyle}"  Grid.Row="3" Grid.Column="0" Text="Duration long break"/>
+        <TextBox Style="{DynamicResource ResourceKey=SettingsTextBoxStyle}"  Grid.Row="3" Grid.Column="1" 
+                 Text="{Binding DurationLongBreak, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Style="{DynamicResource ResourceKey=SettingsTextBlockStyle}"  Grid.Row="3" Grid.Column="2" Text="min"/>
         
         <!-- Study cycles until long break -->
-        <TextBlock Style="{StaticResource SettingsTextBlockStyle}"  Grid.Row="4" Grid.Column="0" Text="Study cycles until long break"/>
-        <TextBox Style="{StaticResource SettingsTextBoxStyle}"  Grid.Row="4" Grid.Column="1" Text="{Binding CyclesUntilLongBreak, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBlock Style="{StaticResource SettingsTextBlockStyle}"  Grid.Row="4" Grid.Column="2" Text="min"/>
+        <TextBlock Style="{DynamicResource ResourceKey=SettingsTextBlockStyle}"  Grid.Row="4" Grid.Column="0" Text="Study cycles until long break"/>
+        <TextBox Style="{DynamicResource ResourceKey=SettingsTextBoxStyle}"  Grid.Row="4" Grid.Column="1" 
+                 Text="{Binding CyclesUntilLongBreak, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Style="{DynamicResource ResourceKey=SettingsTextBlockStyle}"  Grid.Row="4" Grid.Column="2" Text="min"/>
 
         <CheckBox Grid.Row="5" Grid.ColumnSpan="3" Content="Automatically switch to next period once done"
-                  IsChecked="{Binding AutoSwitchModeAfterEnd, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SettingsCheckBoxStyle}"/>
+                  IsChecked="{Binding AutoSwitchModeAfterEnd, UpdateSourceTrigger=PropertyChanged}" 
+                  Style="{DynamicResource ResourceKey=SettingsCheckBoxStyle}"
+                  />
     </Grid>
 </UserControl>

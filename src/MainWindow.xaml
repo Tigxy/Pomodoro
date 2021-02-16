@@ -7,13 +7,11 @@
         xmlns:view="clr-namespace:Pomodoro.View"
         mc:Ignorable="d"
         Title="Pomodoro"
-        FontSize="20"
-        FontFamily="Calibri"
         Closing="Window_Closing" Initialized="Window_Initialized"
         Height="440" Width="650"
-        MinHeight="440" MinWidth="480">
+        MinHeight="440" MinWidth="480"
+        Style="{DynamicResource ResourceKey=WindowLightTheme}">
     <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <ui:BooleanToVisibilityConverter
             x:Key="VisibleHiddenConverter" 
             True="Visible" 
@@ -22,36 +20,32 @@
             x:Key="HiddenVisibleConverter" 
             True="Collapsed" 
             False="Visible" />
-
-        <Style x:Key="NavigationButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="Width" Value="35"/>
-            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
-            <Setter Property="FontSize" Value="25"/>
-            <Setter Property="Margin" Value="3"/>
-            <Setter Property="VerticalAlignment" Value="Top"/>
-        </Style>
     </Window.Resources>
-
     <Grid Margin="10">
         <ContentControl Content="{Binding CurrentView}"/>
         
         <StackPanel Orientation="Horizontal" 
                     Visibility="{Binding IsTimerDisplayed, FallbackValue=Collapsed, Converter={StaticResource VisibleHiddenConverter}}">
             <!-- stats -->
-            <Button Content="&#xE9D2;" Style="{StaticResource NavigationButtonStyle}" 
+            <Button Content="&#xE9D2;" Style="{DynamicResource NavigationButtonStyle}" 
                 Command="{Binding ChangeViewCommand}" CommandParameter="stats"/>
 
             <!-- settings -->
-            <Button Content="&#xE713;" Style="{StaticResource NavigationButtonStyle}" 
+            <Button Content="&#xE713;" Style="{DynamicResource NavigationButtonStyle}" 
                 Command="{Binding ChangeViewCommand}" CommandParameter="settings"/>
         </StackPanel>
 
         <!-- back -->
-        <Button Content="&#xF0D3;" Style="{StaticResource NavigationButtonStyle}" HorizontalAlignment="Left"
+        <Button Content="&#xF0D3;" Style="{DynamicResource NavigationButtonStyle}" HorizontalAlignment="Left"
                 Command="{Binding ChangeViewCommand}" CommandParameter="timer" 
                 Visibility="{Binding IsTimerDisplayed, FallbackValue=Collapsed, Converter={StaticResource HiddenVisibleConverter}}"
+                />
+        
+        <!-- light / dark mode -->
+        <Button Content="&#xF08C;" Style="{DynamicResource NavigationButtonStyle}"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                Visibility="{Binding IsStatsDisplayed, FallbackValue=Collapsed, Converter={StaticResource HiddenVisibleConverter}}"
+                Command="{Binding ChangeThemeCommand}"
                 />
     </Grid>
 </Window>

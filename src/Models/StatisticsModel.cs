@@ -1,6 +1,10 @@
 ﻿#undef POPULATE_DATABASE
 
+#if POPULATE_DATABASE
+using Pomodoro.DB;
+#endif
 using ScottPlot;
+using ScottPlot.Drawing;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,7 +12,7 @@ using System.Linq;
 
 namespace Pomodoro.Models
 {
-    public class StatsModel : BaseModel
+    public class StatisticsModel : BaseModel
     {
         private WpfPlot _plotControl;
         public WpfPlot PlotControl
@@ -17,11 +21,11 @@ namespace Pomodoro.Models
             set { _plotControl = value; OnPropertyChanged(nameof(PlotControl)); }
         }
 
-        private static StatsModel _instance;
+        private static StatisticsModel _instance;
         /// <summary>
-        /// Singleton instance of <see cref="StatsModel"/>
+        /// Singleton instance of <see cref="StatisticsModel"/>
         /// </summary>
-        public static StatsModel Instance
+        public static StatisticsModel Instance
         {
             get
             {
@@ -30,7 +34,7 @@ namespace Pomodoro.Models
                     lock (new object())
                     {
                         if (_instance == null)
-                            _instance = new StatsModel();
+                            _instance = new StatisticsModel();
                     }
                 }
                 return _instance;
@@ -38,9 +42,9 @@ namespace Pomodoro.Models
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="StatsModel"/>
+        /// Initializes a new instance of <see cref="StatisticsModel"/>
         /// </summary>
-        private StatsModel()
+        private StatisticsModel()
         {
 #if POPULATE_DATABASE
             // Allow playing around with new data (e.g. while developping)
@@ -103,12 +107,14 @@ namespace Pomodoro.Models
                     breakDurations[latest.Date.Subtract(s.Date).Days] = s.BreakDuration + s.StudyDuration;
                 }
 
-                plt.PlotBar(days, breakDurations, label: "Break duration", fillColor: Color.FromArgb(36, 182, 255));
-                plt.PlotBar(days, studyDurations, label: "Study duration", fillColor: Color.FromArgb(255, 162, 0));
+                plt.PlotBar(days, breakDurations, label: "Break duration", fillColor: LoadColor("BoxplotColorBreak"), outlineWidth: 0);
+                plt.PlotBar(days, studyDurations, label: "Study duration", fillColor: LoadColor("BoxplotColorStudying"), outlineWidth: 0);
             }
 
-            plt.PlotBar(new[] { dayCount + 1.0 }, new[] { todaysData.BreakDuration + todaysData.StudyDuration }, fillColor: Color.FromArgb(5, 155, 255));
-            plt.PlotBar(new[] { dayCount + 1.0 }, new[] { todaysData.StudyDuration }, fillColor: Color.FromArgb(255, 105, 0));
+            plt.PlotBar(new[] { dayCount + 1.0 }, new[] { todaysData.BreakDuration + todaysData.StudyDuration }, 
+                fillColor: LoadColor("BoxplotColorBreakToday"), outlineColor: Color.Transparent);
+            plt.PlotBar(new[] { dayCount + 1.0 }, new[] { todaysData.StudyDuration }, 
+                fillColor: LoadColor("BoxplotColorStudyingToday"), outlineColor: Color.Transparent);
 
             var maxDuration = statistics.Count() > 0 ? statistics.Max(s => s.StudyDuration + s.BreakDuration) : 0;
             // Set minimum and maximum (otherwise plot looks ugly if only a few minutes of data exist)
@@ -118,9 +124,25 @@ namespace Pomodoro.Models
             var dayNames = new List<string> { "", "Today" };
             dayNames.InsertRange(1, sorted.Select(s => s.Date.Date.DayOfWeek.ToString()));
 
+            plt.Grid(enableVertical: false);
             plt.XTicks(dayNames.ToArray());
             plt.YLabel("hours");
             plt.Legend(location: legendLocation.upperRight);
+            //plt.Style(figBg: Color.Transparent, dataBg: Color.White, tick: Color.White, title: Color.White, label: Color.White);
+
+            plt.Style(PageManager.Instance.IsDarkThemeUsed ? Style.Gray1 : Style.Light1);
+            plt.Colorset(colorset: PageManager.Instance.IsDarkThemeUsed ? Colorset.OneHalfDark : Colorset.OneHalf);
+        }
+
+        private Color LoadColor(string resourceKey)
+        {
+            var d = App.Current.Resources.MergedDictionaries[0][resourceKey];
+            if (d is System.Windows.Media.SolidColorBrush brush)
+            {
+                var color = brush.Color;
+                return Color.FromArgb(color.A, color.R, color.G, color.B);
+            }
+            return Color.Red;
         }
 
 #if POPULATE_DATABASE

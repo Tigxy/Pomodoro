@@ -228,6 +228,8 @@ namespace Pomodoro.Models
                     type: Notification.Wpf.NotificationType.Information,
                     expirationTime: TimeSpan.FromMilliseconds(ToolTipTimeout)
                     );
+
+                System.Media.SystemSounds.Exclamation.Play();
             }, System.Windows.Threading.DispatcherPriority.Background);
         }
 
