@@ -47,7 +47,6 @@
         <TextBlock Style="{DynamicResource ResourceKey=SettingsTextBlockStyle}"  Grid.Row="4" Grid.Column="0" Text="Study cycles until long break"/>
         <TextBox Style="{DynamicResource ResourceKey=SettingsTextBoxStyle}"  Grid.Row="4" Grid.Column="1" 
                  Text="{Binding CyclesUntilLongBreak, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBlock Style="{DynamicResource ResourceKey=SettingsTextBlockStyle}"  Grid.Row="4" Grid.Column="2" Text="min"/>
 
         <CheckBox Grid.Row="5" Grid.ColumnSpan="3" Content="Automatically switch to next period once done"
                   IsChecked="{Binding AutoSwitchModeAfterEnd, UpdateSourceTrigger=PropertyChanged}" 

@@ -21,7 +21,7 @@ namespace Pomodoro
         private void Window_Initialized(object sender, EventArgs e)
         {
             var a = AppSetting.LoadSetting();
-            a.Apply(this);
+            a.ApplyTo(this);
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
@@ -29,7 +29,7 @@ namespace Pomodoro
             PomodoroService.Instance.Stop();
 
             var appS = new AppSetting();
-            appS.TakeOver(this);
+            appS.TakeOverFrom(this);
             appS.SaveSetting();
 
             DBAccess.SaveProfile(PomodoroService.Instance.Profile);

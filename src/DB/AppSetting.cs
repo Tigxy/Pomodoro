@@ -34,7 +34,7 @@ namespace Pomodoro.DB
             DBAccess.SaveParameter(nameof(SelectedProfile), SelectedProfile);
         }
 
-        public void TakeOver(Window window)
+        public void TakeOverFrom(Window window)
         {
             WindowTop = window.Top;
             WindowLeft = window.Left;
@@ -43,7 +43,7 @@ namespace Pomodoro.DB
             WindowState = window.WindowState;
         }
 
-        public void Apply(Window window)
+        public void ApplyTo(Window window)
         {
             window.Top = WindowTop;
             window.Left = WindowLeft;

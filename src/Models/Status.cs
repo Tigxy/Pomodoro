@@ -85,10 +85,7 @@ namespace Pomodoro.Models
         /// <returns></returns>
         private string ToTimeString(TimeSpan timer)
         {
-            // Ensure that timer was already initialized
-            if (timer != null)
-                return $"{Math.Max(0, (int)timer.TotalMinutes):D2}:{Math.Max(0, timer.Seconds):D2}";
-            return "00:00";
+            return $"{Math.Max(0, (int)timer.TotalMinutes):D2}:{Math.Max(0, timer.Seconds):D2}";
         }
 
         public override string ToString() => $"Action: {PeriodType}, IsPaused: {IsPaused}, TimeRemaining: {TimeRemaining}";

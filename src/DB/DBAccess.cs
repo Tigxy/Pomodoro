@@ -4,7 +4,6 @@ using Pomodoro.DB;
 using Pomodoro.DB.Handlers;
 using Pomodoro.Models;
 using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -42,7 +41,7 @@ namespace Pomodoro
         }
 
         /// <summary>
-        /// Configers Dapper to use your conventions when handling the database 
+        /// Configers Dapper to use own conventions when handling the database 
         /// </summary>
         private static void ConfigureDapper()
         {
